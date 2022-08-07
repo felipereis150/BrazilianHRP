@@ -16,7 +16,8 @@ library("stringr")
 library("lubridate")
 
 # reading data file
-df <- read_xlsx("ibrx_mensal.xlsx", na = "-")
+df <- read_xlsx("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx", na = "-")
+path_out <- "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\"
 
 # creating a dataframe with only the necessary columns and renaming the columns
 colnames(df) <- str_replace(colnames(df), "Retorno\r\ndo fechamento\r\nem 1 mês\r\nEm moeda orig\r\najust p/ prov\r\n", "")
@@ -40,15 +41,26 @@ df <- df %>%
   mutate(Data = lubridate::my(Data)) %>% 
   dplyr::filter(Data >= '2000-01-01', Data <= '2022-06-01')
 
+# replacing NA values with 0
+df[is.na(df)] <- 0
 glimpse(df)
 
-# creating csv file with 4 assests with >20 years of data to test clustering
-write.csv(df[, c("IBOV", "USIM5", "CSNA3", "SBSP3")], file= "assets.csv", row.names=FALSE, sep=",")
-
-df2 <- read.csv("assets.csv", na = "-")
+# creating csv file to test clustering
+write.csv(df, file.path(path_out, "assets.csv"), row.names=FALSE)
+df2 <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\assets.csv")[ ,2:ncol(df)]
 glimpse(df2)
 
 # plotting the data
-wi <- HRP_Portfolio(cov(df2), graph = TRUE)
+parent_portfolio <- HRP_Portfolio(cov(df2), graph = TRUE)
 
-# talvez valha fazer um estudo da alocação entre empresas, analisando o retorno mensal de cada empresa em carteiras de investimento públicas e privadas
+# work in progress - split the dataframe into multiplie dataframes
+one_year_history <- df %>% 
+    dplyr::filter(Data >= '2021-06-01', Data <= '2022-06-01')
+one_year_history[grepl(0, unlist(one_year_history[1,]))]
+glimpse(one_year_history)
+
+five_years_history <- df %>% 
+    dplyr::filter(Data >= '2017-06-01', Data <= '2022-06-01')
+five_years_history[grepl(as.numeric(0.0, unlist(five_years_history[1,])))]
+glimpse(five_years_history)
+
