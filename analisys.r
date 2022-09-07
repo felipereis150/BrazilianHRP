@@ -6,7 +6,6 @@ install.packages("dplyr")
 install.packages("tidyr")
 install.packages("stringr")
 install.packages("lubridate")
-install.packages("runner")
 
 library("HierPortfolios")
 library("readxl")
@@ -15,7 +14,6 @@ library("dplyr")
 library("tidyr")
 library("stringr")
 library("lubridate")
-library("runner")
 
 # reading data file
 df <- read_xlsx("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx", na = "-")
@@ -44,76 +42,32 @@ df <- df %>%
   dplyr::filter(Data >= '2000-01-01', Data <= '2022-06-01')
 
 # replacing NA values with 0
-df[is.na(df)] <- 0
+df <- df %>%
+  select_if(~ !any(is.na(.)))
 glimpse(df)
 
-
-# working in progress - rollinw window
-# df3 <- runner(
-#   x = df
-#   1:15
-#   k = 5
-#   f = sum
-#   by = "month"
-# )
-# glimpse(df3)
-
-
-# creating csv file to test clustering with 1/2 years window
-half_year_window <- df %>%
-  dplyr::filter(Data >= '2022-01-01', Data <= '2022-06-01')
-write.csv(half_year_window, file.path(path_out, "half_year_window.csv"), row.names=FALSE)
-half_year_window <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\half_year_window.csv")[ ,2:ncol(df)]
-half_year_window[is.na(half_year_window)] <- 0
-glimpse(half_year_window)
-
-# creating csv file to test clustering with 1 years window
-one_year_window <- df %>%
-  dplyr::filter(Data >= '2021-06-01', Data <= '2022-06-01')
-write.csv(one_year_window, file.path(path_out, "one_year_window.csv"), row.names=FALSE)
-one_year_window <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\one_year_window.csv")[ ,2:ncol(df)]
-one_year_window[is.na(one_year_window)] <- 0
-glimpse(one_year_window)
-
-# creating csv file to test clustering with 2 years window
-two_years_window <- df %>%
-  dplyr::filter(Data >= '2020-06-01', Data <= '2022-06-01')
-write.csv(two_years_window, file.path(path_out, "two_years_window.csv"), row.names=FALSE)
-two_years_window <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\two_years_window.csv")[ ,2:ncol(df)]
-two_years_window[is.na(two_years_window)] <- 0
-glimpse(two_years_window)
-
-# creating csv file to test clustering with 5 years window
+# creating df to test clustering with 5 years window
 five_years_window <- df %>%
   dplyr::filter(Data >= '2017-06-01', Data <= '2022-06-01')
-five_years_window[is.na(five_years_window)] <- 0
 write.csv(five_years_window, file.path(path_out, "five_years_window.csv"), row.names=FALSE)
 five_years_window <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\five_years_window.csv")[ ,2:ncol(df)]
-glimpse(five_years_window)
 
-# creating csv file to test clustering with 10 years window
-ten_years_window <- df %>%
-  dplyr::filter(Data >= '2012-06-01', Data <= '2022-06-01')
-ten_years_window[is.na(ten_years_window)] <- 0
-write.csv(ten_years_window, file.path(path_out, "ten_years_window.csv"), row.names=FALSE)
-ten_years_window <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ten_years_window.csv")[ ,2:ncol(df)]
-glimpse(ten_years_window)
-
-# creating csv file to test clustering with 20 years window
-write.csv(df, file.path(path_out, "twenty_years_window.csv"), row.names=FALSE)
-twenty_years_window <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\twenty_years_window.csv")[ ,2:ncol(df)]
-glimpse(twenty_years_window)
 
 # plotting the data
-parent_portfolio <- HRP_Portfolio(cov(five_years_window), graph = TRUE)
+parent_portfolio <- HRP_Portfolio(cov(five_years_window), graph = FALSE)
+glimpse(parent_portfolio)
 
-# # work in progress - split the dataframe into multiplie dataframes
-# one_year_history <- df %>% 
-#     dplyr::filter(Data >= '2021-06-01', Data <= '2022-06-01')
-# one_year_history[grepl(0, unlist(one_year_history[1,]))]
-# glimpse(one_year_history)
+i = 1
+janela_estimacao <- 60
+periodo_fora_da_amostra <- (nrow(five_years_window) - janela_estimacao) - 1
 
-# five_years_history <- df %>% 
-#     dplyr::filter(Data >= '2017-06-01', Data <= '2022-06-01')
-# five_years_history[grepl(as.numeric(0.0, unlist(five_years_history[1,])))]
-# glimpse(five_years_history)
+for (i in 1:periodo_fora_da_amostra) {
+  amostra_fora_da_amostra <- five_years_window[i:(i+janela_estimacao-1), ]
+  write.csv(amostra_fora_da_amostra, file.path(path_out, "amostra_fora_da_amostra.csv"), row.names=FALSE)
+  amostra_fora_da_amostra <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\amostra_fora_da_amostra.csv")
+  amostra_fora_da_amostra <- amostra_fora_da_amostra %>%
+    select_if(~ !any(is.na(.)))
+  pesos = HRP_Portfolio(cov(amostra_fora_da_amostra), graph = FALSE)
+  print(pesos)
+  write.csv(pesos, file.path(path_out, "pesos.csv"), row.names=FALSE)
+  }
