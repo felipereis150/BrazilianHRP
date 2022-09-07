@@ -44,20 +44,7 @@ df <- df %>%
 # replacing NA values with 0
 df <- df %>%
   select_if(~ !any(is.na(.)))
-glimpse(df)  # não verifiquei
-
-## Vamos a trabalhar com df todo (e não separar os 5 primeiros anos como nas linhas 51--55, os 5 primiros anos serão incluidos na hora de escolher o tamanho da janela).
-
-# creating df to test clustering with 5 years window
-##five_years_window <- df %>%
-##  dplyr::filter(Data >= '2017-06-01', Data <= '2022-06-01')
-##write.csv(five_years_window, file.path(path_out, "five_years_window.csv"), row.names=FALSE)
-##five_years_window <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\five_years_window.csv")[ ,2:ncol(df)]
-
-
-# plotting the data
-##parent_portfolio <- HRP_Portfolio(cov(five_years_window), graph = FALSE)
-##glimpse(parent_portfolio)
+glimpse(df) 
 
 i = 1
 janela_estimacao <- 60  ## (60 meses = 5 anos)
@@ -65,12 +52,9 @@ periodo_fora_da_amostra <- (nrow(df) - janela_estimacao) - 1
 pesos = matrix(NA, ncol = periodo_fora_da_amostra, nrow = ncol(df) - 1) # -1 é para não contar a coluna que tem as datas
 
 for (i in 1:periodo_fora_da_amostra) {
-  janela <- df[i:(i + janela_estimacao - 1), -1]  ## o nome amostra_fora_da_amostra poderia trazer confusão, eu mudei
-  ##write.csv(amostra_fora_da_amostra, file.path(path_out, "amostra_fora_da_amostra.csv"), row.names=FALSE)
-  #amostra_fora_da_amostra <- read.csv("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\amostra_fora_da_amostra.csv")
-  #amostra_fora_da_amostra <- amostra_fora_da_amostra %>% select_if(~ !any(is.na(.))) ## não precisa pois já fizeram isso nas linhas 45--47
-  pesos[,i] = HRP_Portfolio(cov(janela), graph = FALSE)  # salvar como matriz de dados
-  retornos_da_carteira_one_step_ahead[i] = pesos[,i]*df[i + janela_estimacao - 1 + 1, -1]  #salvo a carteira realizada
+  janela <- df[i:(i + janela_estimacao - 1), -1]
+  pesos[i] = HRP_Portfolio(cov(janela), graph = FALSE)  # salvar como matriz de dados
+  retornos_da_carteira_one_step_ahead = pesos[i]*df[i + janela_estimacao - 1 + 1, -1]  #salvo a carteira realizada
 }
 
 # Salvar em cada iteração demora muito, melhor salvar apenas no final
