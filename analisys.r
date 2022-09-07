@@ -54,7 +54,7 @@ pesos = matrix(NA, ncol = periodo_fora_da_amostra, nrow = ncol(df) - 1) # -1 é 
 for (i in 1:periodo_fora_da_amostra) {
   janela <- df[i:(i + janela_estimacao - 1), -1]
   pesos[, i] = HRP_Portfolio(cov(janela), graph = FALSE)  # salvar como matriz de dados
-  retornos_da_carteira_one_step_ahead = pesos[, i]*df[i + janela_estimacao - 1 + 1, -1]  #salvo a carteira realizada
+  retornos_da_carteira_one_step_ahead = pesos[, i]*df[i + janela_estimacao - 1 + 1, -1]  #salvo a carteira realizada, se der erro, tente com t(pesos[,i])
 }
 
 # Salvar em cada iteração demora muito, melhor salvar apenas no final
