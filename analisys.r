@@ -61,4 +61,7 @@ for (i in 1:periodo_fora_da_amostra) {
 row.names(pesos) = colnames(df[,-1])  # pronto, já tem os nomes dos ativos na matriz de pesos
 
 write.csv(pesos, file.path(path_out, "pesos.csv"), row.names=FALSE)
+write.csv(df, file.path(path_out, "df.csv"), row.names=FALSE)
 write.csv(retornos_da_carteira_one_step_ahead, file.path(path_out, "retornos_da_carteira_one_step_ahead.csv"), row.names=FALSE)
+
+
