@@ -64,4 +64,3 @@ write.csv(pesos, file.path(path_out, "pesos.csv"), row.names=FALSE)
 write.csv(df, file.path(path_out, "df.csv"), row.names=FALSE)
 write.csv(retornos_da_carteira_one_step_ahead, file.path(path_out, "retornos_da_carteira_one_step_ahead.csv"), row.names=FALSE)
 
-
