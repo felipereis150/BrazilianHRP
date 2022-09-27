@@ -40,21 +40,26 @@ df <- df %>%
 df <- df %>%
   select_if(~ !any(is.na(.)))
 
-periodo_de_amostra = nrow(df)
-pesos_da_amostra = matrix(NA,nrow = nrow(df)-1, ncol = ncol(df)-1) #tirando a primeira coluna
+# Troquei os nomes para o codigo ficar mais limpo
+n = nrow(df)
+p = ncol(df) - 1
+w = matrix(NA, nrow = nrow(df)-1, ncol = ncol(df)-1) #tirando a primeira coluna
 
+# Defino tamanho da janela (window size) e o tamanho do periodo fora da amostra (Out-of-Sample)
+WS = 60
+OoS = n - WS
+
+Rport = matrix(NA, ncol = 2, nrow = OoS)  # 2 pq temos 2 estratégias: Pesos iguais e HRP.
 # 5 years rolling window
-for (i in 1:60) {
-    df_rolling = df[i:(i+60-1), 2:ncol(df)]
+for (i in 1:OoS) {   # Pq apenas 60? Vc tem uma serie de tamanho T e usará um tamanho de janela 60, ou seja, no teu periodo fora da amostra vc terá T-60 pontos.
+    df_rolling = df[i:(i+WS-1), 2:p]
     df_cov = cov(df_rolling)
-    #print (cov(df_cov)) #checando...
-    pesos_da_amostra[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
+    w[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
+    Rport[i, 1] = mean(df[i+InS, 2:p])          # Carteria de pesos iguais realizada
+    Rport[i, 2] = sum(w[i, ] * df[i+InS, 2:p])  # Carteira realizada (utilizando o HRP)
 }
-
-  row.names(pesos_da_amostra) <- colnames(periodo_de_amostra)
-  save_file("periodo_de_amostra.csv", path_out, periodo_de_amostra)
+row.names(w) <- colnames(df)
+save_file("pesos.csv", path_out, w)
+save_file("Rport.csv", path_out, Rport)
   
   
-save_file("df_rolling.csv", path_out, df_rolling)
-save_file("df.csv", path_out, df)
-save_file("pesos_da_amostra.csv", path_out, pesos_da_amostra)
