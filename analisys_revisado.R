@@ -40,26 +40,33 @@ df <- df %>%
 df <- df %>%
   select_if(~ !any(is.na(.)))
 
-# Troquei os nomes para o codigo ficar mais limpo
+
 n = nrow(df)
 p = ncol(df) - 1
-w = matrix(NA, nrow = nrow(df)-1, ncol = ncol(df)-1) #tirando a primeira coluna
+#w = matrix(NA, 1000, 1000) 
+w = matrix(NA, 300, 300)
+#w = matrix(NA, nrow(df), ncol(df))
 
 # Defino tamanho da janela (window size) e o tamanho do periodo fora da amostra (Out-of-Sample)
 WS = 60
 OoS = n - WS
+Rport = matrix(NA, ncol = 2, nrow = OoS) 
 
-Rport = matrix(NA, ncol = 2, nrow = OoS)  # 2 pq temos 2 estratégias: Pesos iguais e HRP.
 # 5 years rolling window
-for (i in 1:OoS) {   # Pq apenas 60? Vc tem uma serie de tamanho T e usará um tamanho de janela 60, ou seja, no teu periodo fora da amostra vc terá T-60 pontos.
+for (i in 1:OoS) {
     df_rolling = df[i:(i+WS-1), 2:p]
     df_cov = cov(df_rolling)
     w[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
-    Rport[i, 1] = mean(df[i+InS, 2:p])          # Carteria de pesos iguais realizada
-    Rport[i, 2] = sum(w[i, ] * df[i+InS, 2:p])  # Carteira realizada (utilizando o HRP)
+    Rport[i, 1] = mean(df[WS+i, 2:p])          # Carteria de pesos iguais realizada # ESTÁ RETORNANDO NA, CONSERTAR
+    Rport[i, 2] = sum(w[i, ] * df[WS+i, 2:p])  # Carteira realizada (utilizando o HRP)
 }
-row.names(w) <- colnames(df)
-save_file("pesos.csv", path_out, w)
-save_file("Rport.csv", path_out, Rport)
-  
-  
+
+colnames(Rport) <- c("Equal Weights", "HRP") # nome das colunas 
+Rport <- cbind(df[WS:269, 1], Rport) # adicionando coluna dedata
+
+Rport
+
+# save_file("pesos.csv", path_out, w)
+# save_file("Rport.csv", path_out, Rport)
+
+# IMPLEMENTAR OUTROS MÉTODOS PARA COMPARAÇÃO
