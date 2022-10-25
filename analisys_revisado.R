@@ -40,21 +40,33 @@ df <- df %>%
 df <- df %>%
   select_if(~ !any(is.na(.)))
 
-periodo_de_amostra = nrow(df)
-pesos_da_amostra = matrix(NA,nrow = nrow(df)-1, ncol = ncol(df)-1) #tirando a primeira coluna
+
+n = nrow(df)
+p = ncol(df) - 1
+#w = matrix(NA, 1000, 1000) 
+w = matrix(NA, 300, 300)
+#w = matrix(NA, nrow(df), ncol(df))
+
+# Defino tamanho da janela (window size) e o tamanho do periodo fora da amostra (Out-of-Sample)
+WS = 60
+OoS = n - WS
+Rport = matrix(NA, ncol = 2, nrow = OoS) 
 
 # 5 years rolling window
-for (i in 1:60) {
-    df_rolling = df[i:(i+60-1), 2:ncol(df)]
+for (i in 1:OoS) {
+    df_rolling = df[i:(i+WS-1), 2:p]
     df_cov = cov(df_rolling)
-    #print (cov(df_cov)) #checando...
-    pesos_da_amostra[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
+    w[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
+    Rport[i, 1] = mean(df[WS+i, 2:p])          # Carteria de pesos iguais realizada # ESTÁ RETORNANDO NA, CONSERTAR
+    Rport[i, 2] = sum(w[i, ] * df[WS+i, 2:p])  # Carteira realizada (utilizando o HRP)
 }
 
-  row.names(pesos_da_amostra) <- colnames(periodo_de_amostra)
-  save_file("periodo_de_amostra.csv", path_out, periodo_de_amostra)
-  
-  
-save_file("df_rolling.csv", path_out, df_rolling)
-save_file("df.csv", path_out, df)
-save_file("pesos_da_amostra.csv", path_out, pesos_da_amostra)
+colnames(Rport) <- c("Equal Weights", "HRP") # nome das colunas 
+Rport <- cbind(df[WS:269, 1], Rport) # adicionando coluna dedata
+
+Rport
+
+# save_file("pesos.csv", path_out, w)
+# save_file("Rport.csv", path_out, Rport)
+
+# IMPLEMENTAR OUTROS MÉTODOS PARA COMPARAÇÃO
