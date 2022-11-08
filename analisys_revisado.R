@@ -14,10 +14,10 @@ save_file <- function(file_name, file_path, file_content) {
   return(write.csv(file_content, file_path, row.names = FALSE))
 }
 
-#path = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx"
-#path_out = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\"
+path = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx"
+path_out = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\"
 
-df <- read_xlsx("/Users/ctruciosm/Downloads/bdaq_portfolio_allocation-main/data/ibrx_mensal.xlsx", na = "-")
+df <- read_xlsx("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx", na = "-")
 colnames(df) <- str_replace(colnames(df), "Retorno\r\ndo fechamento\r\nem 1 mês\r\nEm moeda orig\r\najust p/ prov\r\n", "")
 
 # transforming the 'Data' column to a date format
@@ -43,8 +43,8 @@ df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
 
 n = nrow(df)
 p = ncol(df)  # cotamos quantas colunas temos
-w = matrix(NA, p - 1, p - 1) # p - 1 pois a primeira coluna são apenas datas
-w_mv = matrix(NA, p - 1, p - 1) # p - 1 pois a primeira coluna são apenas datas
+w = matrix(NA, n - 1, p - 1) # p - 1 pois a primeira coluna são apenas datas
+w_mv = matrix(NA, n - 1, p - 1) # p - 1 pois a primeira coluna são apenas datas
 
 # Defino tamanho da janela (window size) e o tamanho do periodo fora da amostra (Out-of-Sample)
 WS = 60  # Utiliamos 5 anos para estimar os pesos das carteiras
@@ -65,9 +65,12 @@ for (i in 1:OoS) {
 colnames(Rport) <- c("Equal Weights", "HRP", "MV") # nome das colunas 
 Rport <- cbind(df[-c(1:WS), 1], Rport)             # Tinha um erro no codigo
 
-ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"))
+ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"), 
+  main = "Cumulative Returns", xlab = "N_months", ylab = "Cumulative Returns", )
 
 #save_file("pesos_HRP.csv", path_out, w)
 #save_file("pesos_MV.csv", path_out, w_mv)
-#save_file("Rport.csv", path_out, Rport)
+save_file("Rport.csv", path_out, Rport)
 
+
+# write a function to determine the window size, include the for loop inside of it, then, compare the results
