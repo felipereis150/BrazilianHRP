@@ -14,6 +14,32 @@ save_file <- function(file_name, file_path, file_content) {
   return(write.csv(file_content, file_path, row.names = FALSE))
 }
 
+# function to rolling window
+rolling_window_HRP <- function(data, window_size) {
+  
+  number_of_rows = nrow(data) # number of rows
+  number_of_columns = ncol(data) # number of columns
+  weights = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights
+  wheighs_mv = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights for MV
+  out_of_sample = number_of_rows - window_size # out of sample size
+  Rport = matrix(NA, ncol = 3, nrow = out_of_sample) # matrix to save returns, 3 columns to store date and returns comparing with HRP and MV
+  
+  for (i in 1:out_of_sample) {
+    df_rolling = data[i:(i + window_size - 1), 2:p]
+    df_cov = cov(df_rolling)
+    weights[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
+    w_mv[i,] =  optimalPortfolio(Sigma = df_cov, control = list(type = 'minvol', constraint = 'lo'))
+    Rport[i, 1] = mean(as.numeric(data[window_size + i, 2:p]))  # realized return for the period
+    Rport[i, 2] = sum(weights[i, ] * data[window_size + i, 2:p])  # realized cumulative return for the period for HRP
+    Rport[i, 3] = sum(w_mv[i, ] * data[window_size + i, 2:p]) # realized cumulative return for the period for MV
+  }
+  
+  colnames(Rport) <- c("Equal Weights", "HRP", "MV")  # column names
+  Rport <- cbind(data[-c(1:window_size), 1], Rport) # add date column
+  
+  return(Rport)
+}
+
 path = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx"
 path_out = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\"
 
@@ -40,37 +66,6 @@ df <- df %>%
 # replacing NA values with 0
 df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
 
-
-n = nrow(df)
-p = ncol(df)  # cotamos quantas colunas temos
-w = matrix(NA, n - 1, p - 1) # p - 1 pois a primeira coluna são apenas datas
-w_mv = matrix(NA, n - 1, p - 1) # p - 1 pois a primeira coluna são apenas datas
-
-# Defino tamanho da janela (window size) e o tamanho do periodo fora da amostra (Out-of-Sample)
-WS = 60  # Utiliamos 5 anos para estimar os pesos das carteiras
-OoS = n - WS
-Rport = matrix(NA, ncol = 3, nrow = OoS)  # 3 para incluir variância minima
-
-# 5 years rolling window
-for (i in 1:OoS) {
-    df_rolling = df[i:(i + WS - 1), 2:p]
-    df_cov = cov(df_rolling)
-    w[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
-    w_mv[i,] =  optimalPortfolio(Sigma = df_cov, control = list(type = 'minvol', constraint = 'lo'))
-    Rport[i, 1] = mean(as.numeric(df[WS + i, 2:p]))   # Carteria realizada de pesos iguais 
-    Rport[i, 2] = sum(w[i, ] * df[WS + i, 2:p])       # Carteira realizada (utilizando o HRP)
-    Rport[i, 3] = sum(w_mv[i, ] * df[WS + i, 2:p])       # Carteira realizada (utilizando o HRP)
-}
-
-colnames(Rport) <- c("Equal Weights", "HRP", "MV") # nome das colunas 
-Rport <- cbind(df[-c(1:WS), 1], Rport)             # Tinha um erro no codigo
-
-ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"), 
-  main = "Cumulative Returns", xlab = "N_months", ylab = "Cumulative Returns", )
-
-#save_file("pesos_HRP.csv", path_out, w)
-#save_file("pesos_MV.csv", path_out, w_mv)
+rolling_window_HRP(df, 60)
+ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"))
 save_file("Rport.csv", path_out, Rport)
-
-
-# write a function to determine the window size, include the for loop inside of it, then, compare the results
