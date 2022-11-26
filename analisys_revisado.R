@@ -25,13 +25,13 @@ rolling_window_HRP <- function(data, window_size) {
   Rport = matrix(NA, ncol = 3, nrow = out_of_sample) # matrix to save returns, 3 columns to store date and returns comparing with HRP and MV
   
   for (i in 1:out_of_sample) {
-    df_rolling = data[i:(i + window_size - 1), 2:p]
+    df_rolling = data[i:(i + window_size - 1), 2:number_of_columns]
     df_cov = cov(df_rolling)
     weights[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
-    w_mv[i,] =  optimalPortfolio(Sigma = df_cov, control = list(type = 'minvol', constraint = 'lo'))
-    Rport[i, 1] = mean(as.numeric(data[window_size + i, 2:p]))  # realized return for the period
-    Rport[i, 2] = sum(weights[i, ] * data[window_size + i, 2:p])  # realized cumulative return for the period for HRP
-    Rport[i, 3] = sum(w_mv[i, ] * data[window_size + i, 2:p]) # realized cumulative return for the period for MV
+    wheighs_mv[i,] =  optimalPortfolio(Sigma = df_cov, control = list(type = 'minvol', constraint = 'lo'))
+    Rport[i, 1] = mean(as.numeric(data[window_size + i, 2:number_of_columns]))  # realized return for the period
+    Rport[i, 2] = sum(weights[i, ] * data[window_size + i, 2:number_of_columns])  # realized cumulative return for the period for HRP
+    Rport[i, 3] = sum(wheighs_mv[i, ] * data[window_size + i, 2:number_of_columns]) # realized cumulative return for the period for MV
   }
   
   colnames(Rport) <- c("Equal Weights", "HRP", "MV")  # column names
@@ -66,6 +66,6 @@ df <- df %>%
 # replacing NA values with 0
 df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
 
-rolling_window_HRP(df, 60)
+Rport = rolling_window_HRP(df, 60)
 ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"))
 save_file("Rport.csv", path_out, Rport)
