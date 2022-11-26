@@ -7,6 +7,7 @@ library(stringr)
 library(lubridate)
 library(readr)
 library(RiskPortfolios)
+library(tidyverse)
 
 # function to save files quickly
 save_file <- function(file_name, file_path, file_content) {
@@ -69,3 +70,13 @@ df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
 Rport = rolling_window_HRP(df, 60)
 ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"))
 save_file("Rport.csv", path_out, Rport)
+
+ggplot(data = Rport,
+  mapping = aes(x = Data, y = HRP)) %>%
+  geom_line(color = "blue") %>%
+  geom_line(aes(x = Data, y = 'MV'), color = "red") %>%
+  geom_line(aes(x = Data, y = 'Equal Weights'), color = "black") %>%
+  labs(title = "Cumulative Returns", x = "Date", y = "Cumulative Returns") %>%
+  theme_minimal()
+
+# print(Rport)
