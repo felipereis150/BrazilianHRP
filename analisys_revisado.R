@@ -78,8 +78,3 @@ ggplot(data = Rport,
   geom_line(aes(x = Data, y = 'Equal Weights'), color = "black") %>%
   labs(title = "Cumulative Returns", x = "Date", y = "Cumulative Returns") %>%
   theme_minimal()
-
-# print(Rport)
-
-
-não t te ouvindo um minuto
