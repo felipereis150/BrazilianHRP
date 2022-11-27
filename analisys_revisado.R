@@ -80,3 +80,6 @@ ggplot(data = Rport,
   theme_minimal()
 
 # print(Rport)
+
+
+não t te ouvindo um minuto
