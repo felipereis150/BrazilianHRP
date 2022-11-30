@@ -78,3 +78,31 @@ ggplot(data = Rport,
   geom_line(aes(x = Data, y = 'Equal Weights'), color = "black") %>%
   labs(title = "Cumulative Returns", x = "Date", y = "Cumulative Returns") %>%
   theme_minimal()
+
+
+# não to conseguindo pensar em como pegar os pesos iguais numa matriz pra fazer o arquivo dos pesos pras três estratégias
+getWeights <- function(data, window_size) {
+  
+  number_of_rows = nrow(data) # number of rows
+  number_of_columns = ncol(data) # number of columns
+  weights = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights
+  wheighs_mv = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights for MV
+  equal_weights = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights for equal weights
+  out_of_sample = number_of_rows - window_size # out of sample size
+  all_weights = matrix(NA, ncol = 3, nrow = out_of_sample) # matrix to save returns, 3 columns to store date and returns comparing with HRP and MV
+  
+  for (i in 1:out_of_sample) {
+    df_rolling = data[i:(i + window_size - 1), 2:number_of_columns]
+    df_cov = cov(df_rolling)
+    weights[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
+    wheighs_mv[i,] =  optimalPortfolio(Sigma = df_cov, control = list(type = 'minvol', constraint = 'lo'))
+    all_weights[i, 1] = mean(as.numeric(data[window_size + i, 2:number_of_columns]))  # realized return for the period
+    all_weights[i, 2] = sum(weights[i, ] * data[window_size + i, 2:number_of_columns])  # realized cumulative return for the period for HRP
+    all_weights[i, 3] = sum(wheighs_mv[i, ] * data[window_size + i, 2:number_of_columns]) # realized cumulative return for the period for MV
+  }
+  
+  colnames(all_weights) <- c("Equal Weights", "HRP", "MV")  # column names
+  all_weights <- cbind(data[-c(1:window_size), 1], all_weights) # add date column
+  
+  return(all_weights)
+}
