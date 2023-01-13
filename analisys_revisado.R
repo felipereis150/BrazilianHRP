@@ -62,40 +62,16 @@ df <- df %>%
          Data = str_replace(Data, "Nov", "11"), 
          Data = str_replace(Data, "Dez", "12")) %>% 
   mutate(Data = lubridate::my(Data)) %>% 
-  dplyr::filter(Data >= '2000-01-01', Data <= '2022-06-01')
+  dplyr::filter(Data >= '2000-01-01', Data <= '2022-02-01')
 
 # replacing NA values with 0
 df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
 
-Rport60 = rolling_window_HRP(df, 60)
-save_file("Rport120.csv", path_out, Rport60)
-Rport120 = rolling_window_HRP(df, 120)
-save_file("Rport120.csv", path_out, Rport120)
-# ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"))
 
-# # não to conseguindo pensar em como pegar os pesos iguais numa matriz pra fazer o arquivo dos pesos pras três estratégias
-# getWeights <- function(data, window_size) {
-  
-#   number_of_rows = nrow(data) # number of rows
-#   number_of_columns = ncol(data) # number of columns
-#   weights = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights
-#   wheighs_mv = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights for MV
-#   equal_weights = matrix(NA, number_of_rows - 1, number_of_columns - 1) # matrix to save weights for equal weights
-#   out_of_sample = number_of_rows - window_size # out of sample size
-#   all_weights = matrix(NA, ncol = 3, nrow = out_of_sample) # matrix to save returns, 3 columns to store date and returns comparing with HRP and MV
-  
-#   for (i in 1:out_of_sample) {
-#     df_rolling = data[i:(i + window_size - 1), 2:number_of_columns]
-#     df_cov = cov(df_rolling)
-#     weights[i,] =  t(HRP_Portfolio(df_cov, graph = FALSE))
-#     wheighs_mv[i,] =  optimalPortfolio(Sigma = df_cov, control = list(type = 'minvol', constraint = 'lo'))
-#     all_weights[i, 1] = mean(as.numeric(data[window_size + i, 2:number_of_columns]))  # realized return for the period
-#     all_weights[i, 2] = sum(weights[i, ] * data[window_size + i, 2:number_of_columns])  # realized cumulative return for the period for HRP
-#     all_weights[i, 3] = sum(wheighs_mv[i, ] * data[window_size + i, 2:number_of_columns]) # realized cumulative return for the period for MV
-#   }
-  
-#   colnames(all_weights) <- c("Equal Weights", "HRP", "MV")  # column names
-#   all_weights <- cbind(data[-c(1:window_size), 1], all_weights) # add date column
-  
-#   return(all_weights)
-# }
+# rolling window with 60 months
+Rport = rolling_window_HRP(df, 60)
+save_file("Rport60BeforeCovid.csv", path_out, Rport)
+
+# rolling window with 120 months
+Rport = rolling_window_HRP(df, 120)
+save_file("Rport120BeforeCovid.csv", path_out, Rport)
