@@ -67,7 +67,7 @@ df <- df %>%
 # replacing NA values with 0
 df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
 
-
+print(df)
 # rolling window with 60 months
 Rport = rolling_window_HRP(df, 60)
 save_file("Rport60BeforeCovid.csv", path_out, Rport)
