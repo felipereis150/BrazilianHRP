@@ -41,10 +41,10 @@ rolling_window_HRP <- function(data, window_size) {
   return(Rport)
 }
 
-path = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx"
-path_out = "C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\"
+path = "data/ibrx_mensal.xlsx"
+path_out = "data/ibrx_mensal.xlsx"
 
-df <- read_xlsx("C:\\Users\\felip\\OneDrive\\Área de Trabalho\\BDAQ\\data\\ibrx_mensal.xlsx", na = "-")
+df <- read_xlsx("data/ibrx_mensal.xlsx", na = "-")
 colnames(df) <- str_replace(colnames(df), "Retorno\r\ndo fechamento\r\nem 1 mês\r\nEm moeda orig\r\najust p/ prov\r\n", "")
 
 # transforming the 'Data' column to a date format
@@ -62,7 +62,7 @@ df <- df %>%
          Data = str_replace(Data, "Nov", "11"), 
          Data = str_replace(Data, "Dez", "12")) %>% 
   mutate(Data = lubridate::my(Data)) %>% 
-  dplyr::filter(Data >= '2000-01-01', Data <= '2022-02-01')
+  dplyr::filter(Data >= '2000-01-01', Data <= '2020-02-01')
 
 # replacing NA values with 0
 df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
