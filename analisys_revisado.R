@@ -62,19 +62,16 @@ df <- df %>%
          Data = str_replace(Data, "Nov", "11"), 
          Data = str_replace(Data, "Dez", "12")) %>% 
   mutate(Data = lubridate::my(Data)) %>% 
-  dplyr::filter(Data >= '2000-01-01', Data <= '2022-06-01')
+  dplyr::filter(Data >= '2000-01-01', Data <= '2022-02-01')
 
 # replacing NA values with 0
 df <- df %>% select_if(~ !any(is.na(.))) # 27 - 1 assets
 
+print(df)
+# rolling window with 60 months
 Rport = rolling_window_HRP(df, 60)
-ts.plot(apply(Rport, 2, cumsum), lty = 1:3, col = c("red", "blue", "black"))
-save_file("Rport.csv", path_out, Rport)
+save_file("Rport60BeforeCovid.csv", path_out, Rport)
 
-ggplot(data = Rport,
-  mapping = aes(x = Data, y = HRP)) %>%
-  geom_line(color = "blue") %>%
-  geom_line(aes(x = Data, y = 'MV'), color = "red") %>%
-  geom_line(aes(x = Data, y = 'Equal Weights'), color = "black") %>%
-  labs(title = "Cumulative Returns", x = "Date", y = "Cumulative Returns") %>%
-  theme_minimal()
+# rolling window with 120 months
+Rport = rolling_window_HRP(df, 120)
+save_file("Rport120BeforeCovid.csv", path_out, Rport)
