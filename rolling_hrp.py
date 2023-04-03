@@ -36,8 +36,7 @@ def rolling_window_HRP(data, window_size):
         Rport[i, 1] = np.mean(data.iloc[i + window_size, 1:])
         Rport[i, 2] = np.dot(weights[i, :], data.iloc[i + window_size, 1:])
         Rport[i, 3] = np.dot(weights_mv[i, :], data.iloc[i + window_size, 1:])
-    
+
     Rport = pd.DataFrame(Rport, columns=["Date", "Equal Weights", "HRP", "MV"])
-    Rport["Date"] = pd.to_datetime(Rport["Date"])
-    
+   
     return Rport
