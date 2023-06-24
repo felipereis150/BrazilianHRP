@@ -162,7 +162,7 @@ for i in range(len(data_hrp)):
 
 # Define helper functions for calculating metrics
 def annualize_return(return_series):
-    return (1 + return_series.mean()) ** 12 - 1
+    return (1 + return_series.mean()) ** 12 - 1   # ** é "elevado à potencia" não? Na vdd basta pegar a média historia fora da amostra e multiplicar por 12
 
 def annualize_std(return_series):
     return return_series.std() * np.sqrt(12)
@@ -174,16 +174,16 @@ def sharpe_ratio(return_series, risk_free_rate):
 def adjusted_sharpe_ratio(return_series, risk_free_rate, factor_loadings):
     excess_return = return_series - risk_free_rate
     denominator = np.sqrt(12 * (1 + (factor_loadings ** 2).sum()))
-    return (np.sqrt(12) * excess_return.mean() / excess_return.std()) / denominator
+    return (np.sqrt(12) * excess_return.mean() / excess_return.std()) / denominator # Esta formula está bemmm diferente da formula que passei pra vcs no R. Alias, está diferente do que estña na secao 4.2 do nosso artigo.
 
 def sortino_ratio(return_series, risk_free_rate):
     downside_returns = return_series - risk_free_rate
-    downside_std = downside_returns[downside_returns < 0].std() * np.sqrt(12)
+    downside_std = downside_returns[downside_returns < 0].std() * np.sqrt(12)  # a formula aqui é diferente da secao 4.2 do nosso artigo. Vcs seguram qual artigo/formula para fazer esta implementação?
     return np.sqrt(12) * (return_series.mean() - risk_free_rate) / downside_std
 
 # Define parameters
-risk_free_rate = 0.1375 # annualized SELIC for march 2023
-factor_loadings = np.array([0.5, 0.3, 0.2])  # Assuming 3 factors
+risk_free_rate = 0.1375 # annualized SELIC for march 2023   # ok, eu prefiro 0.05 pois é mais uma média historica, nao eh sempre que a SELIC eh tao generosa assim.
+factor_loadings = np.array([0.5, 0.3, 0.2])  # Assuming 3 factors  # o que é isso aqui? onde é utilizado?
 
 # Define output DataFrame
 results = pd.DataFrame()
@@ -206,8 +206,8 @@ for i in range(len(data_hrp_w_date)):
     sr = sharpe_ratio(df, risk_free_rate)
     asr = adjusted_sharpe_ratio(df, risk_free_rate, factor_loadings)
     sor = sortino_ratio(df, risk_free_rate)
-    to = (np.abs(df.diff()).sum() / 2) / df.shape[0]
-    ssw = (df ** 2).sum() / df.shape[0]
+    to = (np.abs(df.diff()).sum() / 2) / df.shape[0]  # Isto está errado
+    ssw = (df ** 2).sum() / df.shape[0]  # o que faz o .shape[0]? a gente deveria somar para cada iteracao o SSPW e depois calcular a média fora da amostra
     
     # Combine results into a single row for this dataframe
     row = pd.DataFrame({
