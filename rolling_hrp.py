@@ -5,7 +5,7 @@ import HRP
 def min_var_portfolio(cov):
     inv_cov = np.linalg.inv(cov)
     ones = np.ones(len(cov))
-    return np.dot(inv_cov, ones) / np.dot(np.dot(ones, inv_cov), ones)
+    return np.dot(inv_cov, ones) / np.dot(np.dot(ones, inv_cov), ones)   # Aqui vcs implementaram sem a resricao dos pesos serem positivos, por isso a diferenca com meus resultados.
 
 
 def rolling_window_HRP(data, window_size):
