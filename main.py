@@ -33,6 +33,9 @@ def generate_stats(dataframes, suffixes, output_file):
         temp_stats.loc['std'] = numeric_columns.std()  # Add standard deviation
         temp_stats.loc['skewness'] = numeric_columns.skew()  # Add skewness
         temp_stats.loc['kurtosis'] = numeric_columns.kurtosis()  # Add kurtosis
+
+        # Eu acho que .kurtosis() calcula o excesso de Kurtosis e não a Kurtosis, mas verifiquem na documentacao. Uma forma de saber é
+        # simular dados de uma N(0,1) e calcular a kurtosis. Se for 3, é Kurtosis, se for 0 é excesso de Kurtosis.
         
         col_suffix = "" + suffixes[i]  # Add suffix based on the provided list
         temp_stats.columns = [col_suffix + col for col in temp_stats.columns]  # Add suffix to column names
