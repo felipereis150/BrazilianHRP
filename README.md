@@ -1,2 +1,7 @@
-Portfolio Allocation Strategies Performance Portfolio in Machine Allocation: Does Size Matter?
-Portfolio allocation strategies (specific portfolio in machine education) have attracted or interest from financial investment and specific agents in the market. However, the circumstances in which these strategies may (or may not) produce the best expected results is not very clear in the literature. The evaluated simulations are evaluated through methods when the portfolios of interest are small (~10 assets) and medium (~50 assets). The results will be compared with classic strategies such as equal weights and minimum variance portfolios.
+# Codes
+
+This repository contains the codes to replicate the results in Reis et al. (2023).
+
+## References
+
+- Reis, F., Sobreira, A., Trucíos, C. and Asrilhant, B. (2023). *Using hierarchical risk parity in the Brazilian market: An out-of-sample analysis.*  Accepted _Brazilian Review of Finance_ 
