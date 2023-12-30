@@ -123,7 +123,7 @@ for (InS in c(60, 120)) {
     # SSPW
     sspw[i, ] <- c(0, sum(w_ew[i, ]^2), sum(w_mv[i, ]^2), sum(w_iv[i, ]^2), 
                    sum(w_rp[i, ]^2), sum(w_md[i, ]^2), sum(w_mde[i, ]^2), sum(w_hrp[i, ]^2))
-    # Turover
+    # Turnover
     if (i > 1) {
       to[i - 1, ] <- c(0,
                        calculate_to(w_ew[i - 1, ], w_ew[i, ], tail(ret, 1)),
